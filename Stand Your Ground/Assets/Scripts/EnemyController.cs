@@ -5,10 +5,12 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     private float speed = .5f;
+    public string name;
     private float zbound = 3f;
     private float xbound = 2.5f;
     private GameObject player;
     public float health = 100f;
+    public EnemyData enemyData;
 
     // Start is called before the first frame update
     void Start()
@@ -67,12 +69,32 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(float damage)
     {
         health -= damage;
+        Debug.Log (name + " took " + damage + " damage and has " + health + " health left.");
     }
 
     // Destroy the enemy
     public void Die()
     {
         Destroy(gameObject);
+        Debug.Log("Enemy died.");
+    }
+
+    // If enemy data is set, set the enemy's stats to the data's stats
+    private void OnEnable()
+    {
+        if (enemyData != null)
+        {
+
+            // // Set the enemy to the enemy prefab
+            // GameObject enemy = Instantiate(enemyData.enemyPrefab, transform.position, Quaternion.identity);
+            // enemy.transform.parent = transform;
+
+            // Set the enemy's stats
+            name = enemyData.name;
+            health = enemyData.health;
+            Debug.Log(name + " and their health: " + health);
+            speed = enemyData.speed;
+        }
     }
 
 }
