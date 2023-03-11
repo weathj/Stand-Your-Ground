@@ -12,9 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0a11f3546c587db4b8d7a5dbfee6a3a7, type: 3}
   m_Name: Sarah
   m_EditorClassIdentifier: 
-  name: 
-  health: 0
-  speed: 0
-  enemyPrefab: {fileID: 0}
-  zbound: 0
-  xbound: 0
+  zName: 
+  health: 20
+  speed: 0.2
+  enemyPrefab: {fileID: 3350852905876615044, guid: 381b6612ff369c1478947fa0fbeba87a, type: 3}

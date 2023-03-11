@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
     private float speed = .5f;
-    public string name;
+    public string zName;
     private float zbound = 3f;
     private float xbound = 2.5f;
     private GameObject player;
@@ -85,16 +85,49 @@ public class EnemyController : MonoBehaviour
         if (enemyData != null)
         {
 
-            // // Set the enemy to the enemy prefab
-            // GameObject enemy = Instantiate(enemyData.enemyPrefab, transform.position, Quaternion.identity);
-            // enemy.transform.parent = transform;
+            // Set the enemy to the enemy prefab if there is no enemy
+            // clear the enemy's children if there is an enemy
+            if (transform.childCount == 0)
+            {
+                SpawnEnemy();
+            }
+            else
+            {
+                foreach (Transform child in transform)
+                {
+                    Destroy(child.gameObject);
+                }
+
+                SpawnEnemy();
+            }
 
             // Set the enemy's stats
-            name = enemyData.name;
+            name = enemyData.zName;
             health = enemyData.health;
             Debug.Log(name + " and their health: " + health);
             speed = enemyData.speed;
         }
+    }
+
+    private GameObject SpawnEnemy()
+    {
+
+        GameObject enemy = null;
+        // Get the enemy position
+        Vector3 enemyPosition = transform.position;
+
+        // Get the enemy's rotation
+        Quaternion enemyRotation = transform.rotation;
+        enemyRotation.eulerAngles = new Vector3(0, enemyRotation.eulerAngles.y, 0);
+
+        // Spawn the enemy
+        enemy = Instantiate(enemyData.enemyPrefab, enemyPosition, enemyRotation);
+
+        // Set the enemy's parent to the enemy controller
+        enemy.transform.parent = transform;
+
+        return enemy;
+
     }
 
 }

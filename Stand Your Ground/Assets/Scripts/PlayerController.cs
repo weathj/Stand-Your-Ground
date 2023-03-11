@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
@@ -25,6 +26,9 @@ public class PlayerController : MonoBehaviour
     private float bulletHitMissDistance = 25f;
     [SerializeField]
     private Animator animator;
+    [SerializeField]
+    private TMP_Text ammoText;
+    private int ammo = 30;
 
     private CharacterController controller;
     private PlayerInput playerInput;
@@ -61,6 +65,10 @@ public class PlayerController : MonoBehaviour
     }
 
     private void ShootGun(){
+        if (ammo <= 0) return;
+
+        ammo--;
+
         RaycastHit hit;
 
         GameObject bullet = GameObject.Instantiate(bulletPrefab, barrelTransform.position, Quaternion.identity, bulletParent);
@@ -93,6 +101,9 @@ public class PlayerController : MonoBehaviour
         // Update animator
         animator.SetFloat("Speed", move.magnitude);
 
+        // Update ammo text
+        ammoText.text = ammo.ToString();
+
         // Changes the height position of the player..
         if (jumpAction.triggered && groundedPlayer)
         {
@@ -107,6 +118,10 @@ public class PlayerController : MonoBehaviour
         Quaternion targetRotation = Quaternion.Euler(0, targetAngle, 0);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed);
 
+    }
+
+    public void AddAmmo(int amount){
+        ammo += amount;
     }
 
 }
