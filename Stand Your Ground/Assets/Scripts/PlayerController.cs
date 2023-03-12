@@ -120,7 +120,7 @@ public class PlayerController : MonoBehaviour
 
         // Take Damage. For Testing purposes will set this to input
         if (takeDamageAction.triggered){
-            TakeDamage();
+            TakeDamage(10f);
         }
 
         Vector2 input = moveAction.ReadValue<Vector2>();
@@ -156,14 +156,15 @@ public class PlayerController : MonoBehaviour
         ammo += amount;
     }
 
-    public void TakeDamage(){
+    public void TakeDamage(float damage){
         
-        health -= 10;
+        health -= damage;
         healthBar.UpdateHealthBar(health);
-        if (health <= 0){
+        if (health == 0){
             lives --;
             health = maxHealth;
             if (lives <= 0){
+                health = 0f;
                 GameOver();
             }
         }
@@ -172,6 +173,13 @@ public class PlayerController : MonoBehaviour
     void GameOver(){
         gameOver.SetActive(true);
         hipCrosshair.SetActive(false);
+    }
+
+    private void OnCollisionStay(Collision other) {
+        if (other.gameObject.tag == "Enemy"){
+            EnemyController enemy = other.gameObject.GetComponent<EnemyController>();
+            TakeDamage(enemy.attack * Time.deltaTime);
+        }
     }
 
 }

@@ -4,18 +4,26 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+
+    [Header("Zombie Stats")]
     private float speed = .5f;
-    public string zName;
+    private string zName;
     private float zbound = 3f;
     private float xbound = 2.5f;
-    private GameObject player;
-    public float health = 100f;
+    public float health;
+    public float attack;
     public EnemyData enemyData;
+
+    [Header("Animator")]
+    public Animator animator;
+
+    private GameObject player;
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.Find("Player");
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -84,50 +92,24 @@ public class EnemyController : MonoBehaviour
     {
         if (enemyData != null)
         {
-
-            // Set the enemy to the enemy prefab if there is no enemy
-            // clear the enemy's children if there is an enemy
-            if (transform.childCount == 0)
-            {
-                SpawnEnemy();
-            }
-            else
-            {
-                foreach (Transform child in transform)
-                {
-                    Destroy(child.gameObject);
-                }
-
-                SpawnEnemy();
-            }
-
             // Set the enemy's stats
-            name = enemyData.zName;
             health = enemyData.health;
             Debug.Log(name + " and their health: " + health);
             speed = enemyData.speed;
+            attack = enemyData.attack;
         }
     }
 
-    private GameObject SpawnEnemy()
-    {
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.tag == "Player"){
+            animator.SetBool("Attacking", true);
+        }
+    }
 
-        GameObject enemy = null;
-        // Get the enemy position
-        Vector3 enemyPosition = transform.position;
-
-        // Get the enemy's rotation
-        Quaternion enemyRotation = transform.rotation;
-        enemyRotation.eulerAngles = new Vector3(0, enemyRotation.eulerAngles.y, 0);
-
-        // Spawn the enemy
-        enemy = Instantiate(enemyData.enemyPrefab, enemyPosition, enemyRotation);
-
-        // Set the enemy's parent to the enemy controller
-        enemy.transform.parent = transform;
-
-        return enemy;
-
+    private void OnCollisionExit(Collision other) {
+        if (other.gameObject.tag == "Player"){
+            animator.SetBool("Attacking", false);
+        }
     }
 
 }
