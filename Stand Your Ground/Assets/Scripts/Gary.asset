@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zName: 
   health: 50
-  speed: 0.4
-  enemyPrefab: {fileID: 9037583106191449393, guid: 6a6062669899eb6459578b87959aa146, type: 3}
+  speed: 1
+  attack: 20

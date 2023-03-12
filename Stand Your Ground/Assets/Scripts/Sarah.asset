@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Sarah
   m_EditorClassIdentifier: 
   zName: 
-  health: 20
-  speed: 0.2
-  enemyPrefab: {fileID: 3350852905876615044, guid: 381b6612ff369c1478947fa0fbeba87a, type: 3}
+  health: 80
+  speed: 1.3
+  attack: 10

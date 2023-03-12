@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0a11f3546c587db4b8d7a5dbfee6a3a7, type: 3}
-  m_Name: Craig
+  m_Name: Bertha
   m_EditorClassIdentifier: 
-  zName: Craig
-  health: 150
-  speed: 0.3
+  zName: Bertha
+  health: 30
+  speed: 0.8
   attack: 5

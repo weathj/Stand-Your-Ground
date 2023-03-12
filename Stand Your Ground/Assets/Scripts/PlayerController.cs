@@ -177,7 +177,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnCollisionStay(Collision other) {
         if (other.gameObject.tag == "Enemy"){
-            TakeDamage(10f * Time.deltaTime);
+            EnemyController enemy = other.gameObject.GetComponent<EnemyController>();
+            TakeDamage(enemy.attack * Time.deltaTime);
         }
     }
 
