@@ -4,18 +4,26 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+
+    [Header("Zombie Stats")]
     private float speed = .5f;
     public string zName;
     private float zbound = 3f;
     private float xbound = 2.5f;
-    private GameObject player;
     public float health = 100f;
+    public float attackRadius = 20f;
     public EnemyData enemyData;
+
+    [Header("Animator")]
+    public Animator animator;
+
+    private GameObject player;
 
     // Start is called before the first frame update
     void Start()
     {
         player = GameObject.Find("Player");
+        animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -127,7 +135,18 @@ public class EnemyController : MonoBehaviour
         enemy.transform.parent = transform;
 
         return enemy;
+    }
 
+    private void OnCollisionEnter(Collision other) {
+        if (other.gameObject.tag == "Player"){
+            animator.SetBool("Attacking", true);
+        }
+    }
+
+    private void OnCollisionExit(Collision other) {
+        if (other.gameObject.tag == "Player"){
+            animator.SetBool("Attacking", false);
+        }
     }
 
 }
