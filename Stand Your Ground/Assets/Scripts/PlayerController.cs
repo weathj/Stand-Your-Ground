@@ -8,6 +8,7 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
 
+    [Header("Player Movement and Gravity")]
     [SerializeField]
     private float playerSpeed = 2.0f;
     [SerializeField]
@@ -17,6 +18,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float rotationSpeed = 5f;
     [SerializeField]
+    
+    [Header("Gun Settings")]
     private GameObject bulletPrefab;
     [SerializeField]
     private Transform barrelTransform;
@@ -25,10 +28,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float bulletHitMissDistance = 25f;
     [SerializeField]
-    private Animator animator;
+
+    [Header("Health Settings")]
+    public HealthBar healthBar;
+    [SerializeField]
+    private TMP_Text livesText;
+    public float health = 100f;
+    public float maxHealth = 100f;
+    private float lives = 3f;
+
+    [Header("Ammo Settings")]
     [SerializeField]
     private TMP_Text ammoText;
     private int ammo = 30;
+
+    [Header("Player Animation")]
+    private Animator animator;
+
+    [Header("Canvas")]
+    public GameObject gameOver;
+    [SerializeField]
+    public GameObject hipCrosshair;
 
     private CharacterController controller;
     private PlayerInput playerInput;
@@ -39,6 +59,7 @@ public class PlayerController : MonoBehaviour
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction shootAction;
+    private InputAction takeDamageAction;
 
 
     private void Awake()
@@ -48,11 +69,17 @@ public class PlayerController : MonoBehaviour
         controller = GetComponent<CharacterController>();
         playerInput = GetComponent<PlayerInput>();
         cameraTransform = Camera.main.transform;
+        animator = GetComponent<Animator>();
         
         // Get Input actions
         moveAction = playerInput.actions["Move"];
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
+        takeDamageAction = playerInput.actions["Take Damage"];
+
+        // Double check canvas
+        gameOver.SetActive(false);
+        hipCrosshair.SetActive(true);
 
     }
 
@@ -91,6 +118,10 @@ public class PlayerController : MonoBehaviour
             playerVelocity.y = 0f;
         }
 
+        // Take Damage. For Testing purposes will set this to input
+        if (takeDamageAction.triggered){
+            TakeDamage();
+        }
 
         Vector2 input = moveAction.ReadValue<Vector2>();
         Vector3 move = new Vector3(input.x, 0, input.y);
@@ -101,8 +132,9 @@ public class PlayerController : MonoBehaviour
         // Update animator
         animator.SetFloat("Speed", move.magnitude);
 
-        // Update ammo text
+        // Update text
         ammoText.text = ammo.ToString();
+        livesText.text = lives.ToString();
 
         // Changes the height position of the player..
         if (jumpAction.triggered && groundedPlayer)
@@ -122,6 +154,24 @@ public class PlayerController : MonoBehaviour
 
     public void AddAmmo(int amount){
         ammo += amount;
+    }
+
+    public void TakeDamage(){
+        
+        health -= 10;
+        healthBar.UpdateHealthBar(health);
+        if (health <= 0){
+            lives --;
+            health = maxHealth;
+            if (lives <= 0){
+                GameOver();
+            }
+        }
+    }
+
+    void GameOver(){
+        gameOver.SetActive(true);
+        hipCrosshair.SetActive(false);
     }
 
 }
