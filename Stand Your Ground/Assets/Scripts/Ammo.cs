@@ -24,10 +24,14 @@ public class Ammo : MonoBehaviour
 
     }
 
-    private void OnControllerColliderHit(ControllerColliderHit hit) {
-        if (hit.gameObject.tag == "Player") {
-            hit.gameObject.GetComponent<PlayerController>().AddAmmo(ammoCrateData.ammoAmount);
+    private void OnTriggerEnter(Collider other) {
+
+        Debug.Log(other.tag);
+        
+        if (other.tag == "Player"){
+            other.gameObject.GetComponent<PlayerController>().AddAmmo(ammoCrateData.ammoAmount);
             Destroy(gameObject);
         }
+
     }
 }
