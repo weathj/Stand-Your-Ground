@@ -12,14 +12,22 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float playerSpeed = 2.0f;
     [SerializeField]
+    private float sprintSpeed = 4.0f;
+    [SerializeField]
     private float jumpHeight = 1.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
     [SerializeField]
     private float rotationSpeed = 5f;
     [SerializeField]
+    public float distance;
+    private float topDistance;
+    private Vector3 startposition;
+    [SerializeField]
+    private TMP_Text distanceText;
     
     [Header("Gun Settings")]
+    [SerializeField]
     private GameObject bulletPrefab;
     [SerializeField]
     private Transform barrelTransform;
@@ -27,9 +35,9 @@ public class PlayerController : MonoBehaviour
     private Transform bulletParent;
     [SerializeField]
     private float bulletHitMissDistance = 25f;
-    [SerializeField]
-
+    
     [Header("Health Settings")]
+    [SerializeField]
     public HealthBar healthBar;
     [SerializeField]
     private TMP_Text livesText;
@@ -60,6 +68,7 @@ public class PlayerController : MonoBehaviour
     private InputAction jumpAction;
     private InputAction shootAction;
     private InputAction takeDamageAction;
+    private InputAction sprintAction;
 
 
     private void Awake()
@@ -76,11 +85,16 @@ public class PlayerController : MonoBehaviour
         jumpAction = playerInput.actions["Jump"];
         shootAction = playerInput.actions["Shoot"];
         takeDamageAction = playerInput.actions["Take Damage"];
+        sprintAction = playerInput.actions["Sprint"];
 
         // Double check canvas
         gameOver.SetActive(false);
         hipCrosshair.SetActive(true);
+    }
 
+    private void Start() {
+        startposition.z = transform.position.z;
+        topDistance = 0f;
     }
 
     private void OnEnable(){
@@ -123,11 +137,25 @@ public class PlayerController : MonoBehaviour
             TakeDamage(10f);
         }
 
+
         Vector2 input = moveAction.ReadValue<Vector2>();
         Vector3 move = new Vector3(input.x, 0, input.y);
         move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
         move.y = 0;
-        controller.Move(move * Time.deltaTime * playerSpeed);
+
+        if (sprintAction.ReadValue<float>() > 0){
+            controller.Move(move * Time.deltaTime * sprintSpeed);
+        }
+        else{
+            controller.Move(move * Time.deltaTime * playerSpeed);
+        }
+        
+
+        // Player distance
+        distance = transform.position.z - startposition.z;
+        if (distance > topDistance){
+            topDistance = distance;
+        }
 
         // Update animator
         animator.SetFloat("Speed", move.magnitude);
@@ -135,6 +163,7 @@ public class PlayerController : MonoBehaviour
         // Update text
         ammoText.text = ammo.ToString();
         livesText.text = lives.ToString();
+        distanceText.text = topDistance.ToString("#");
 
         // Changes the height position of the player..
         if (jumpAction.triggered && groundedPlayer)
@@ -160,7 +189,7 @@ public class PlayerController : MonoBehaviour
         
         health -= damage;
         healthBar.UpdateHealthBar(health);
-        if (health == 0){
+        if (health <= 0 && lives > 0){
             lives --;
             health = maxHealth;
             if (lives <= 0){

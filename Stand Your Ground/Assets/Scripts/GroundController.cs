@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class GroundController : MonoBehaviour
 {
@@ -11,17 +12,25 @@ public class GroundController : MonoBehaviour
     [SerializeField]
     private float groundTileCount = 0f;
     private float tilesNeeded = 8f;
-    private GameObject player;
+    private PlayerController player;
     [SerializeField]
     private float groundTileOffset = 10f;
     [SerializeField]
+    private float dropoffDistance = 100f;
+    private float lastTileDistance;
+    [SerializeField]
+    private float lastTileOffset;
+    [SerializeField]
     private Transform roadParent;
+    [SerializeField]
+    private TMP_Text tileCountText;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.Find("Player");
+        player = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -31,20 +40,32 @@ public class GroundController : MonoBehaviour
         // Get all the ground tiles
         groundTiles = GameObject.FindGameObjectsWithTag("Ground");
 
+        groundTileCount = groundTiles.Length;
+
         // If there are less than 8 ground tiles, spawn more
-        if (groundTiles.Length < tilesNeeded)
+        if (groundTileCount < tilesNeeded)
         {
             SpawnGroundTile();
         }
 
-        // If there are more than 8 ground tiles, destroy the first one
-        if (groundTiles.Length > tilesNeeded)
-        {
-            Destroy(groundTiles[0]);
+        lastTileDistance = groundTiles[groundTiles.Length - 1].transform.position.z - player.distance;
+        if (lastTileDistance < lastTileOffset){
+            SpawnGroundTile();
         }
+
+        // for loop to find any ground tiles that are too far away
+        for (int i = 0; i < groundTiles.Length; i++)
+        {
+            if (groundTiles[i].transform.position.z < player.distance - dropoffDistance)
+            {
+                Destroy(GameObject.Find(groundTiles[i].name));
+            }
+        }
+
+
+        tileCountText.text = groundTileCount.ToString();
         
     }
-
     void SpawnGroundTile()
     {
         // Get a random ground tile

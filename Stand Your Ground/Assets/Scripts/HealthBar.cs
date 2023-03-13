@@ -6,8 +6,13 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
 
-    public Image healthBarImage;
-    public PlayerController player;
+    [SerializeField]
+    private Image healthBarImage;
+    [SerializeField]
+    private Image iconGreen;
+    [SerializeField]
+    private Image iconRed;
+    private PlayerController player;
 
     // Start is called before the first frame update
     void Awake()
@@ -19,5 +24,16 @@ public class HealthBar : MonoBehaviour
     public void UpdateHealthBar(float health)
     {
         healthBarImage.fillAmount = health / 100f;
+
+        if (health < 50f){
+            iconRed.gameObject.SetActive(true);
+            iconGreen.gameObject.SetActive(false);
+            healthBarImage.color = Color.red;
+        }
+        else{
+            iconRed.gameObject.SetActive(false);
+            iconGreen.gameObject.SetActive(true);
+            healthBarImage.color = Color.green;
+        }
     }
 }
