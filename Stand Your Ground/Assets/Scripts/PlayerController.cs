@@ -9,60 +9,53 @@ public class PlayerController : MonoBehaviour
 {
 
     [Header("Player Movement and Gravity")]
-    [SerializeField]
-    private float playerSpeed = 2.0f;
-    [SerializeField]
-    private float sprintSpeed = 4.0f;
-    [SerializeField]
-    private float jumpHeight = 1.0f;
-    [SerializeField]
-    private float gravityValue = -9.81f;
-    [SerializeField]
-    private float rotationSpeed = 5f;
-    [SerializeField]
-    public float distance;
+    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float sprintSpeed = 4.0f;
+    [SerializeField] private float jumpHeight = 1.0f;
+    [SerializeField] private float gravityValue = -9.81f;
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] public float distance;
     private float topDistance;
     private Vector3 startposition;
-    [SerializeField]
-    private TMP_Text distanceText;
+    [SerializeField] private TMP_Text distanceText;
+
+    [Header("Game Settings")]
+    [SerializeField] private float minSpawnDistance = 15f;
+    [SerializeField] private float maxSpawnDistance = 50f;
+    private float spawnDistanceMultiplier;
+    private float spawnDistance;
     
     [Header("Gun Settings")]
-    [SerializeField]
-    private GameObject bulletPrefab;
-    [SerializeField]
-    private Transform barrelTransform;
-    [SerializeField]
-    private Transform bulletParent;
-    [SerializeField]
-    private float bulletHitMissDistance = 25f;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Transform barrelTransform;
+    [SerializeField] private Transform bulletParent;
+    [SerializeField] private float bulletHitMissDistance = 25f;
     
     [Header("Health Settings")]
-    [SerializeField]
-    public HealthBar healthBar;
-    [SerializeField]
-    private TMP_Text livesText;
+    [SerializeField] public HealthBar healthBar;
+    [SerializeField] private TMP_Text livesText;
     public float health = 100f;
     public float maxHealth = 100f;
     private float lives = 3f;
 
     [Header("Ammo Settings")]
-    [SerializeField]
-    private TMP_Text ammoText;
-    private int ammo = 30;
+    [SerializeField] private TMP_Text ammoText;
+    [SerializeField] private int ammo = 30;
 
     [Header("Player Animation")]
     private Animator animator;
 
     [Header("Canvas")]
     public GameObject gameOver;
-    [SerializeField]
-    public GameObject hipCrosshair;
+    [SerializeField] public GameObject hipCrosshair;
 
     private CharacterController controller;
     private PlayerInput playerInput;
     private Vector3 playerVelocity;
     private bool groundedPlayer;
     private Transform cameraTransform;
+
+    public EventManager eventManager;
 
     private InputAction moveAction;
     private InputAction jumpAction;
@@ -95,6 +88,9 @@ public class PlayerController : MonoBehaviour
     private void Start() {
         startposition.z = transform.position.z;
         topDistance = 0f;
+        distance = 0f;
+
+        spawnDistance = Random.Range(minSpawnDistance, maxSpawnDistance);
     }
 
     private void OnEnable(){
@@ -149,12 +145,16 @@ public class PlayerController : MonoBehaviour
         else{
             controller.Move(move * Time.deltaTime * playerSpeed);
         }
-        
 
         // Player distance
         distance = transform.position.z - startposition.z;
         if (distance > topDistance){
             topDistance = distance;
+        }
+
+        if (distance >= spawnDistance){
+            eventManager.RaiseDistanceReachedEvent(distance);
+            spawnDistance = spawnDistance + Random.Range(minSpawnDistance, maxSpawnDistance);
         }
 
         // Update animator
@@ -180,7 +180,6 @@ public class PlayerController : MonoBehaviour
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, rotationSpeed);
 
     }
-
     public void AddAmmo(int amount){
         ammo += amount;
     }
@@ -207,7 +206,7 @@ public class PlayerController : MonoBehaviour
     private void OnCollisionStay(Collision other) {
         if (other.gameObject.tag == "Enemy"){
             EnemyController enemy = other.gameObject.GetComponent<EnemyController>();
-            TakeDamage(enemy.attack * Time.deltaTime);
+            TakeDamage(enemy.enemyData.attack * Time.deltaTime);
         }
     }
 

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Bertha
   m_EditorClassIdentifier: 
   zName: Bertha
-  health: 30
+  health: -50
   speed: 0.8
   attack: 5
+  spawnProbability: 0.5

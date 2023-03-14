@@ -34,11 +34,11 @@ public class Bullet : MonoBehaviour
         Destroy(gameObject);
 
         if (other.gameObject.tag == "Enemy"){
-            EnemyController zombie = other.gameObject.GetComponent<EnemyController>();
-            zombie.health -= 10f;
-            Debug.Log("Enemy health: " + other.gameObject.GetComponent<EnemyController>().health);
-            if (other.gameObject.GetComponent<EnemyController>().health <= 0f){
-                zombie.Die();
+            EnemyController enemy = other.gameObject.GetComponent<EnemyController>();
+            enemy.enemyData.health -= 10f;
+            Debug.Log("Enemy health: " + enemy.enemyData.health);
+            if (enemy.enemyData.health <= 0f){
+                enemy.Die();
             }
         }
     }
