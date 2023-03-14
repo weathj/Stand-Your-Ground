@@ -7,6 +7,7 @@ public class EventManager : MonoBehaviour
 {
     // Example events
     public UnityEvent<float> distanceReachedEvent;
+    public UnityEvent enemyDiedEvent;
     public UnityEvent playerDiedEvent;
     public UnityEvent powerupCollectedEvent;
 
@@ -46,6 +47,12 @@ public class EventManager : MonoBehaviour
         }
     }
 
-    // Other event raising methods here...
+    public void RaiseEnemyDiedEvent()
+    {
+        if (enemyDiedEvent != null)
+        {
+            enemyDiedEvent.Invoke();
+        }
+    }
 }
 

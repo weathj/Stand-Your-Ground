@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1743258247722098402}
   m_Layer: 0
   m_Name: Medium Ammo Box
-  m_TagString: Untagged
+  m_TagString: Powerup
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

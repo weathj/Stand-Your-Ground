@@ -20,6 +20,7 @@ public class EnemyController : MonoBehaviour
     public Animator animator;
 
     private GameObject player;
+    private EventManager eventManager;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,11 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
 
         Debug.Log("Enemy spawn probability: " + enemyData.spawnProbability);
+        Debug.Log("Enemy Health: " + enemyData.health);
+
+        // Get the event manager
+        eventManager = GameObject.Find("EventManager").GetComponent<EventManager>();
+
     }
 
     // Update is called once per frame
@@ -78,17 +84,19 @@ public class EnemyController : MonoBehaviour
     }
 
     // Lower the enemy's health when hit by a bullet
-    public void TakeDamage(float damage)
-    {
-        enemyData.health -= damage;
-        Debug.Log (name + " took " + damage + " damage and has " + enemyData.health + " health left.");
-    }
+    // public void TakeDamage(float damage)
+    // {
+    //     enemyData.health -= damage;
+    //     Debug.Log (name + " took " + damage + " damage and has " + enemyData.health + " health left.");
+    // }
 
     // Destroy the enemy
     public void Die()
     {
+        enemyData.ResetHealth();
         Destroy(gameObject);
         Debug.Log("Enemy died.");
+        eventManager.RaiseEnemyDiedEvent();
     }
 
     // If enemy data is set, set the enemy's stats to the data's stats

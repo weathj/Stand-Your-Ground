@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class SpawnSystem : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class SpawnSystem : MonoBehaviour
     [Header("Spawn Area")]
     [SerializeField] private float spawnDistance = 10f; // Spawn distance in front of player
     [SerializeField] Bounds spawnArea; // Spawn area game object
+    [SerializeField] private float spawnAreaHeight = 1.3f; // Spawn area height
 
     public EventManager eventManager; // Event manager
 
@@ -32,6 +34,12 @@ public class SpawnSystem : MonoBehaviour
     public int baseDifficultyLevel = 1; // Base difficulty level
     public float difficultyLevelExponent = 1.2f; // Difficulty level exponent
     private int currentdifficultyLevel; // Current difficulty level
+
+    private int enemyCount; // Zombie count
+    [SerializeField] private TMP_Text enemiesCountText; // Zombie count text
+
+    private int powerupCount; // Powerup count
+    [SerializeField] private TMP_Text powerupsCountText; // Powerup count text
 
 
 
@@ -49,6 +57,14 @@ public class SpawnSystem : MonoBehaviour
     void Update()
     {
 
+        // Count enemies
+        enemyCount = GameObject.FindGameObjectsWithTag("Enemy").Length;
+        enemiesCountText.text = enemyCount.ToString();
+
+        // Count powerups
+        powerupCount = GameObject.FindGameObjectsWithTag("Powerup").Length;
+        powerupsCountText.text = powerupCount.ToString();
+
         spawnArea.center = playerTransform.position + playerTransform.forward * spawnDistance; // Set spawn area center
 
         // Calculate distance between player and last spawned object
@@ -60,30 +76,33 @@ public class SpawnSystem : MonoBehaviour
             // SpawnObject(); // Spawn a new object
             nextSpawnDistance = distanceToPlayer + Random.Range(minSpawnDistance, maxSpawnDistance); // Calculate next spawn distance
         }
+
+        // // if enemies gets to large, delete some
+        // if (enemyCount < 80)
+        // {
+        //     // delete the first enemy
+        //     Destroy(enemies[0]);
+        // }
     }
 
-    // private void SpawnObject()
-    // {
-    //     Vector3 randomPosition = new Vector3(
-    //             Random.Range(spawnArea.min.x, spawnArea.max.x),
-    //             Random.Range(spawnArea.min.y, spawnArea.max.y),
-    //             Random.Range(spawnArea.min.z, spawnArea.max.z)
-    //         );
+    private void SpawnObject()
+    {
+        Debug.Log("Spawning object");
     
-    //     // Determine whether to spawn an ammo crate
-    //     if (Random.value < ammoSpawnChance)
-    //     {
-    //         int randomIndex = Random.Range(0, ammoCrates.Length);
-    //         // Get a random position within the spawn area
-    //         Instantiate(ammoCrates[randomIndex], randomPosition, Quaternion.identity);
-    //     }
-    //     // Determine whether to spawn a power-up
-    //     else if (Random.value < powerupSpawnChance)
-    //     {
-    //         int randomIndex = Random.Range(0, powerups.Length);
-    //         Instantiate(powerups[randomIndex], randomPosition, Quaternion.identity);
-    //     }
-    // }
+        // Determine whether to spawn an ammo crate
+        if (Random.value < ammoSpawnChance)
+        {
+            int randomIndex = Random.Range(0, ammoCrates.Length);
+            // Get a random position within the spawn area
+            SpawnAmmo(randomIndex);
+        }
+        // Determine whether to spawn a power-up
+        else if (Random.value < powerupSpawnChance)
+        {
+            int randomIndex = Random.Range(0, powerups.Length);
+            SpawnPowerup(randomIndex);
+        }
+    }
 
     private void OnEnable()
     {
@@ -97,21 +116,29 @@ public class SpawnSystem : MonoBehaviour
 
     private void HandleDistanceReachedEvent(float distance)
     {
-        SpawnEnemies(currentdifficultyLevel, enemies);
+        SpawnEnemies(currentdifficultyLevel, enemies); // Spawn enemies
+        // increase diificulity level by one
+        currentdifficultyLevel = currentdifficultyLevel + 1;
+        SpawnObject(); // Spawn object
     }
 
+// add a comment to each line of code to explain what it does
     public void SpawnEnemies(int difficultyLevel, GameObject[] enemies)
     {
         Debug.Log("Spawning enemies");
 
         // Calculate the total probability of all the enemies in list
         float totalProbability = 0f;
+        // Loop through all enemies
         for (int i = 0; i < enemies.Length; i++)
         {
+            // Get enemy controller
             EnemyController enemy = enemies[i].GetComponent<EnemyController>();
+            // Add enemy spawn probability to total probability
             totalProbability += enemy.enemyData.spawnProbability;
         }
 
+        // Check if total probability is 0
         if (totalProbability == 0f)
         {
             Debug.LogError("Total probability of enemies is 0.");
@@ -122,8 +149,11 @@ public class SpawnSystem : MonoBehaviour
         List<float> probabilities = new List<float>();
         for (int i = 0; i < enemies.Length; i++)
         {
+            // Get enemy controller
             EnemyController enemy = enemies[i].GetComponent<EnemyController>();
+            // Calculate adjusted probability
             float adjustedProbability = enemy.enemyData.spawnProbability * (1f + difficultyLevel / 10f);
+            // Add adjusted probability to list
             probabilities.Add(adjustedProbability / totalProbability);
         }
 
@@ -134,9 +164,12 @@ public class SpawnSystem : MonoBehaviour
         float cumulativeProbability = 0f;
         for (int i = 0; i < probabilities.Count; i++)
         {
+            // Add the probability of the current enemy type to the cumulative probability
             cumulativeProbability += probabilities[i];
+            // Check if the random number is less than the cumulative probability
             if (randomNumber <= cumulativeProbability)
             {
+                // Spawn the enemy
                 SpawnEnemy(enemies[i]);
             }
         }
@@ -151,8 +184,35 @@ public class SpawnSystem : MonoBehaviour
 
         // Instantiate the zombie at the spawn position
         GameObject newEnemy = Instantiate(enemy, spawnPosition, Quaternion.identity, enemiesParent);
+
+        // reset enemy health
+        newEnemy.GetComponent<EnemyController>().enemyData.ResetHealth();
+
     }
 
+    public void SpawnAmmo(int ammoIndex){
+        // Get a random position within the spawn area
+        Vector3 randomPosition = new Vector3(
+                Random.Range(spawnArea.min.x, spawnArea.max.x),
+                spawnAreaHeight,
+                Random.Range(spawnArea.min.z, spawnArea.max.z)
+            );
+        
+        // Instantiate the ammo crate at the random position
+        Instantiate(ammoCrates[ammoIndex], randomPosition, Quaternion.identity);
 
+    }
 
+    public void SpawnPowerup(int powerupIndex){
+        // Get a random position within the spawn area
+        Vector3 randomPosition = new Vector3(
+                Random.Range(spawnArea.min.x, spawnArea.max.x),
+                spawnAreaHeight,
+                Random.Range(spawnArea.min.z, spawnArea.max.z)
+            );
+        
+        // Instantiate the powerup at the random position
+        Instantiate(powerups[powerupIndex], randomPosition, Quaternion.identity);
+
+    }
 }

@@ -11,4 +11,16 @@ public class EnemyData : ScriptableObject
     public float attack;
     public float spawnProbability;
 
+    private float initialHealth;
+
+    private void OnEnable()
+    {
+        initialHealth = health;
+    }
+
+    public void ResetHealth()
+    {
+        health = initialHealth;
+    }
+
 }

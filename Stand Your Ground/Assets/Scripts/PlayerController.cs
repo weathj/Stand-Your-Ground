@@ -24,6 +24,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float maxSpawnDistance = 50f;
     private float spawnDistanceMultiplier;
     private float spawnDistance;
+    private int killCount = 0;
+    [SerializeField] private TMP_Text killCountText;
     
     [Header("Gun Settings")]
     [SerializeField] private GameObject bulletPrefab;
@@ -56,12 +58,15 @@ public class PlayerController : MonoBehaviour
     private Transform cameraTransform;
 
     public EventManager eventManager;
+    private SpawnSystem spawnSystem;
 
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction shootAction;
     private InputAction takeDamageAction;
     private InputAction sprintAction;
+    private InputAction ammoAction;
+    private InputAction healthAction;
 
 
     private void Awake()
@@ -72,6 +77,7 @@ public class PlayerController : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         cameraTransform = Camera.main.transform;
         animator = GetComponent<Animator>();
+        spawnSystem = GameObject.Find("Spawn System").GetComponent<SpawnSystem>();
         
         // Get Input actions
         moveAction = playerInput.actions["Move"];
@@ -79,6 +85,8 @@ public class PlayerController : MonoBehaviour
         shootAction = playerInput.actions["Shoot"];
         takeDamageAction = playerInput.actions["Take Damage"];
         sprintAction = playerInput.actions["Sprint"];
+        ammoAction = playerInput.actions["Ammo"];
+        healthAction = playerInput.actions["Health"];
 
         // Double check canvas
         gameOver.SetActive(false);
@@ -95,6 +103,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnEnable(){
         shootAction.performed += _ => ShootGun();
+        eventManager.enemyDiedEvent.AddListener(EnemyKilled);
     }
 
     private void OnDisable(){
@@ -146,6 +155,14 @@ public class PlayerController : MonoBehaviour
             controller.Move(move * Time.deltaTime * playerSpeed);
         }
 
+        if (ammoAction.triggered){
+            spawnSystem.SpawnAmmo(1);
+        }
+
+        if (healthAction.triggered){
+            spawnSystem.SpawnPowerup(0);
+        }
+
         // Player distance
         distance = transform.position.z - startposition.z;
         if (distance > topDistance){
@@ -164,6 +181,7 @@ public class PlayerController : MonoBehaviour
         ammoText.text = ammo.ToString();
         livesText.text = lives.ToString();
         distanceText.text = topDistance.ToString("#");
+        killCountText.text = killCount.ToString();
 
         // Changes the height position of the player..
         if (jumpAction.triggered && groundedPlayer)
@@ -198,9 +216,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void EnemyKilled(){
+        killCount++;
+        }
+
+    public void AddHealth(float amount){
+        health += amount;
+        Debug.Log("Health added. Health is now " + health);
+        // Update health bar
+        healthBar.UpdateHealthBar(health);
+    }
+
     void GameOver(){
         gameOver.SetActive(true);
         hipCrosshair.SetActive(false);
+    }
+
+    private void OnCollisionEnter(Collision other) {
+        Debug.Log(other.gameObject.name + "is the object that hit me");
     }
 
     private void OnCollisionStay(Collision other) {

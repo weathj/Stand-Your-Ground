@@ -9,11 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0a11f3546c587db4b8d7a5dbfee6a3a7, type: 3}
-  m_Name: Gary
+  m_Script: {fileID: 11500000, guid: a7246ffb277c4a24c8e8fd97bca6fe04, type: 3}
+  m_Name: MediumAmmo
   m_EditorClassIdentifier: 
-  zName: 
-  health: 110
-  speed: 3
-  attack: 20
-  spawnProbability: 0.2
+  ammoAmount: 30
