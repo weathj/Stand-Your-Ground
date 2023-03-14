@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Enemy Data")]
+    public EnemyData enemyData;
 
     [Header("Zombie Stats")]
-    private float speed = .5f;
-    private string zName;
-    private float zbound = 3f;
-    private float xbound = 2.5f;
-    public float health;
-    public float attack;
-    public EnemyData enemyData;
+    // private float speed = .5f;
+    // private string zName;
+    // private float zbound = 3f;
+    // private float xbound = 2.5f;
+    // public float health;
+    // public float attack;
+    // public float spawnProbability;
 
     [Header("Animator")]
     public Animator animator;
@@ -24,6 +26,8 @@ public class EnemyController : MonoBehaviour
     {
         player = GameObject.Find("Player");
         animator = GetComponent<Animator>();
+
+        Debug.Log("Enemy spawn probability: " + enemyData.spawnProbability);
     }
 
     // Update is called once per frame
@@ -49,7 +53,7 @@ public class EnemyController : MonoBehaviour
         float distance = Vector3.Distance(playerPosition, enemyPosition);
 
         // Move towards the player
-        transform.position = Vector3.MoveTowards(enemyPosition, playerPosition, speed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(enemyPosition, playerPosition, enemyData.speed * Time.deltaTime);
 
     }
 
@@ -76,8 +80,8 @@ public class EnemyController : MonoBehaviour
     // Lower the enemy's health when hit by a bullet
     public void TakeDamage(float damage)
     {
-        health -= damage;
-        Debug.Log (name + " took " + damage + " damage and has " + health + " health left.");
+        enemyData.health -= damage;
+        Debug.Log (name + " took " + damage + " damage and has " + enemyData.health + " health left.");
     }
 
     // Destroy the enemy
@@ -93,10 +97,11 @@ public class EnemyController : MonoBehaviour
         if (enemyData != null)
         {
             // Set the enemy's stats
-            health = enemyData.health;
+            float health = enemyData.health;
             Debug.Log(name + " and their health: " + health);
-            speed = enemyData.speed;
-            attack = enemyData.attack;
+            float speed = enemyData.speed;
+            float attack = enemyData.attack;
+            float spawnProbability = enemyData.spawnProbability;
         }
     }
 
